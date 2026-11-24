@@ -46,7 +46,7 @@
       }
       if (field.length || row.length) { row.push(field); rows.push(row); }
       if (rows.length < 2) return [];
-      const headers = rows[0].map(h => String(h || "").replace(/^\\uFEFF/, "").trim());
+      const headers = rows[0].map(h => String(h || "").trim().replace(String.fromCharCode(0xFEFF), ""));
       return rows.slice(1).filter(cols => cols.some(v => String(v || "").trim())).map(cols => {
         const record = {};
         headers.forEach((h, i) => { record[h] = String(cols[i] ?? "").trim(); });
@@ -60,7 +60,7 @@
       if (/^[a-zA-Z0-9_-]{20,}$/.test(raw)) {
         return `https://drive.google.com/file/d/${raw}/view`;
       }
-      if (/^https:\/\/drive\\.google\\.com\/open\\?id=/.test(raw)) {
+      if (raw.startsWith("https://drive.google.com/open?id=")) {
         try {
           const id = new URL(raw).searchParams.get("id");
           return id ? `https://drive.google.com/file/d/${id}/view` : raw;
